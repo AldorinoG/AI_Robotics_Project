@@ -195,9 +195,18 @@ class CarRacingLegacyWrapper(gymnasium.Wrapper):
         self.prev_steering = steering
 
         car_action = np.zeros(3, dtype=np.float32)
+        turn_amount = abs(steering)
+        gas = min(max(0.12, float(action[1])), 0.55)
+        brake = 0.0
+        if turn_amount > 0.22:
+            gas = min(gas, 0.18)
+            brake = 0.15
+        elif turn_amount > 0.08:
+            gas = min(gas, 0.25)
+
         car_action[0] = steering
-        car_action[1] = max(0.20, float(action[1]))
-        car_action[2] = 0.0
+        car_action[1] = gas
+        car_action[2] = brake
         return car_action
 
     def _max_steering_for_speed(self):

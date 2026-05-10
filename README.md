@@ -1,30 +1,27 @@
-# Self-Driving Racecar with Proximal Policy Optimization
+# AI Robotics Car Racing Project
 
-Solving the OpenAI Gym [CarRacing-v0](https://gym.openai.com/envs/CarRacing-v0) environment using Proximal Policy Optimization.
+This project trains and runs a PPO self-driving agent for Gymnasium `CarRacing-v3`.
 
-Read the [full report](extra/report.pdf).
+## Files
 
-## Demo
+- `train.py` trains the racing model and saves checkpoints in `models/`.
+- `run_car.py` opens the launcher for human driving or AI driving.
+- `env_compat.py` adapts Gymnasium `CarRacing-v3` for the installed Stable-Baselines3 version and applies the current observation/action preprocessing.
+- `leaderboard.json` stores lap times.
 
-![Video Demo](extra/demo.gif)
+## Train
 
-See the full video demo on [YouTube](https://youtu.be/s1uKkmNiNhM).
-
-## Results
-
-After 5000 training steps, the agent achieves a mean score of 909.48±10.30 over 100 episodes. To reproduce the results, run the following commands:
-
-```
-mkdir logs
-python demo.py --ckpt extra/final_weights.pt --delay_ms 0
+```bash
+source venv/bin/activate
+python train.py
 ```
 
-Results from episodes will be saved to `logs/episode_rewards.csv`.
+Training checkpoints are saved in `models/`, and TensorBoard logs are saved in `logs/` when TensorBoard is installed.
 
-## Implementation Details
+## Run
 
--   A convolutional neural network to jointly approximate the value function and the policy.
--   Optimization is performed using [Proximal Policy Optimization](https://arxiv.org/abs/1707.06347).
--   Policy network outputs parameters to a Beta distribution, [which is better for bounded continuous action spaces](https://proceedings.mlr.press/v70/chou17a/chou17a.pdf).
--   Advantage estimation is done through the [Generalized Advantage Estimation](https://arxiv.org/abs/1506.02438) algorithm.
--   A series of 4 frames are concatenated to form the input to the network, with frame skipping optionally applied.
+```bash
+source venv/bin/activate
+python run_car.py
+```
+

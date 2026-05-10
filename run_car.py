@@ -60,25 +60,34 @@ def run_ai():
     obs = env.reset()
     start_time = time.time()
     lap_time = None
+    attempts = 1
 
     print("AI is driving.")
     print("Watch the simulation window.\n")
 
     running = True
-    while running:
-        action, _ = model.predict(obs, deterministic=True)
-        obs, reward, done, info = env.step(action)
+    try:
+        while running:
+            action, _ = model.predict(obs, deterministic=True)
+            obs, reward, done, info = env.step(action)
 
-        elapsed = time.time() - start_time
-        print(f"\rAI time: {elapsed:.1f}s", end="", flush=True)
+            elapsed = time.time() - start_time
+            print(f"\rAI attempt {attempts} time: {elapsed:.1f}s", end="", flush=True)
 
-        if done[0]:
-            if not info[0].get("lap_finished", False):
-                print("\nAI episode ended before completing a lap.")
-                env.close()
-                return
-            lap_time = time.time() - start_time
-            running = False
+            if done[0]:
+                if not info[0].get("lap_finished", False):
+                    attempts += 1
+                    print("\nAI went off track. Resetting and trying again.\n")
+                    obs = env.reset()
+                    start_time = time.time()
+                    continue
+
+                lap_time = time.time() - start_time
+                running = False
+    except KeyboardInterrupt:
+        env.close()
+        print("\nAI run stopped.")
+        return
 
     env.close()
     print(f"\nAI finished. Lap time: {round(lap_time, 2)}s")
