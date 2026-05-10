@@ -1,44 +1,30 @@
-# AI_Robotics_Project
-AI in Robotics Project UTS 2026 
-Step 1 — Make sure you have Python 3.11 installed
-Download from: https://www.python.org/downloads/release/python-3119/
-During install, tick "Add to PATH"
+# Self-Driving Racecar with Proximal Policy Optimization
 
-Step 2 — Open terminal and navigate to the project folder
+Solving the OpenAI Gym [CarRacing-v0](https://gym.openai.com/envs/CarRacing-v0) environment using Proximal Policy Optimization.
 
-Step 3 — Install all dependencies
-bashpy -3.11 -m pip install gymnasium[box2d] pygame stable-baselines3 numpy
+Read the [full report](extra/report.pdf).
 
-Step 4 — Drive manually first to set a human lap time
-bashpy -3.11 run_car.py
+## Demo
 
-Enter your name in the GUI
-Click Drive Manually
-Use W A S D to drive
-Timer starts when you first press W
-Lap time saves automatically when the episode ends
-Do this a few times to get a good benchmark time
+![Video Demo](extra/demo.gif)
 
+See the full video demo on [YouTube](https://youtu.be/s1uKkmNiNhM).
 
-Step 5 — Train the AI
-bashpy -3.11 train.py
+## Results
 
-Leave this running — it takes a few hours
-You will see training progress printing in the terminal
-Press Ctrl+C anytime to stop early — progress is saved
-Model saves automatically to the models/ folder
+After 5000 training steps, the agent achieves a mean score of 909.48±10.30 over 100 episodes. To reproduce the results, run the following commands:
 
+```
+mkdir logs
+python demo.py --ckpt extra/final_weights.pt --delay_ms 0
+```
 
-Step 6 — Watch the AI drive and compare times
-bashpy -3.11 run_car.py
+Results from episodes will be saved to `logs/episode_rewards.csv`.
 
-Open the GUI again
-Click Let AI Drive
-Watch the simulation window
-Result screen shows AI time vs your best human time
-Leaderboard updates automatically
+## Implementation Details
 
-Progress:
-- WASD Control Done
-- GUI Done
-- Train file Done (Not trained yet)
+-   A convolutional neural network to jointly approximate the value function and the policy.
+-   Optimization is performed using [Proximal Policy Optimization](https://arxiv.org/abs/1707.06347).
+-   Policy network outputs parameters to a Beta distribution, [which is better for bounded continuous action spaces](https://proceedings.mlr.press/v70/chou17a/chou17a.pdf).
+-   Advantage estimation is done through the [Generalized Advantage Estimation](https://arxiv.org/abs/1506.02438) algorithm.
+-   A series of 4 frames are concatenated to form the input to the network, with frame skipping optionally applied.

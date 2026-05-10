@@ -5,12 +5,17 @@ from tkinter import font as tkfont
 import time
 import json
 import os
+
+os.environ.setdefault("MPLCONFIGDIR", "/tmp/matplotlib")
+
 import numpy as np
 from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import DummyVecEnv, VecFrameStack, VecTransposeImage
 
+from env_compat import make_car_racing_env
+
 SAVE_DIR         = "./models"
-MODEL_NAME       = "racenet_cnn_ppo_final"
+MODEL_NAME       = "racenet_cnn_ppo_legacy_final"
 LEADERBOARD_FILE = "leaderboard.json"
 
 #LEADERBOARD
@@ -39,8 +44,11 @@ def run_ai():
 
     def make_env():
         def _init():
-            env = gym.make("CarRacing-v3", continuous=True, render_mode="human")
-            return env
+            return make_car_racing_env(
+                render_mode="human",
+                legacy_preprocessing=True,
+                terminate_on_no_reward=False,
+            )
         return _init
 
     env = DummyVecEnv([make_env()])
@@ -65,6 +73,10 @@ def run_ai():
         print(f"\rAI time: {elapsed:.1f}s", end="", flush=True)
 
         if done[0]:
+            if not info[0].get("lap_finished", False):
+                print("\nAI episode ended before completing a lap.")
+                env.close()
+                return
             lap_time = time.time() - start_time
             running = False
 
@@ -180,6 +192,7 @@ def launch_gui():
         if not os.path.exists(model_path + ".zip"):
             error_label.config(text="No trained model found. Run train.py first.")
             return
+        result["mode"] = "ai"
         root.destroy()
         run_ai()
 
@@ -323,3 +336,6 @@ if __name__ == "__main__":
             show_leaderboard_screen(player_name, lap_time, all_times)
         else:
             print("No lap time recorded — you quit before finishing.")
+
+    elif result["mode"] == "ai":
+        pass
