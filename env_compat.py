@@ -39,17 +39,30 @@ class GymnasiumToGymWrapper(gym.Wrapper):
         self.observation_space = _convert_space(env.observation_space)
         self.action_space = _convert_space(env.action_space)
         self.metadata = getattr(env, "metadata", {})
+        self._pending_seed = None
 
     def reset(self, **kwargs):
+        if "seed" not in kwargs and self._pending_seed is not None:
+            kwargs["seed"] = self._pending_seed
+            self._pending_seed = None
         obs, _info = self.env.reset(**kwargs)
         return obs
 
     def step(self, action):
         obs, reward, terminated, truncated, info = self.env.step(action)
+        total_tiles = len(getattr(self.unwrapped, "track", []))
+        visited_tiles = getattr(self.unwrapped, "tile_visited_count", 0)
+        info["track_tiles_total"] = total_tiles
+        info["track_tiles_visited"] = visited_tiles
+        info["track_completed"] = total_tiles > 0 and visited_tiles >= total_tiles
         return obs, reward, terminated or truncated, info
 
+    def render(self):
+        return self.env.render()
+
     def seed(self, seed=None):
-        self.reset(seed=seed)
+        self._pending_seed = seed
+        self.action_space.seed(seed)
         return [seed]
 
 
@@ -230,6 +243,7 @@ class CarRacingLegacyWrapper(gymnasium.Wrapper):
 
 def make_car_racing_env(
     render_mode=None,
+    max_episode_steps=None,
     reward_shaping=False,
     action_assist=False,
     legacy_preprocessing=False,
@@ -238,6 +252,8 @@ def make_car_racing_env(
     kwargs = {"continuous": True}
     if render_mode is not None:
         kwargs["render_mode"] = render_mode
+    if max_episode_steps is not None:
+        kwargs["max_episode_steps"] = max_episode_steps
 
     env = gymnasium.make("CarRacing-v3", **kwargs)
     if legacy_preprocessing:

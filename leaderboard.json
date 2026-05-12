@@ -1,42 +1,18 @@
 [
   {
-    "name": "AI",
-    "time": 1.09
+    "name": "Nam",
+    "coins": 319
   },
   {
     "name": "AI",
-    "time": 1.1
+    "coins": 273
   },
   {
-    "name": "nam",
-    "time": 17.12
+    "name": "aldo",
+    "coins": 154
   },
   {
-    "name": "jo",
-    "time": 19.14
-  },
-  {
-    "name": "nam",
-    "time": 19.38
-  },
-  {
-    "name": "jo",
-    "time": 19.87
-  },
-  {
-    "name": "AI",
-    "time": 20.86
-  },
-  {
-    "name": "AI",
-    "time": 20.97
-  },
-  {
-    "name": "AI",
-    "time": 21.66
-  },
-  {
-    "name": "AI",
-    "time": 21.67
+    "name": "nswrf",
+    "coins": 148
   }
 ]
