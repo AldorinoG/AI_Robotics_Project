@@ -1,18 +1,50 @@
 [
   {
     "name": "Nam",
+    "score_type": "coins",
     "coins": 319
   },
   {
+    "name": "Jonathan",
+    "score_type": "coins",
+    "coins": 309
+  },
+  {
+    "name": "j",
+    "score_type": "coins",
+    "coins": 296
+  },
+  {
     "name": "AI",
-    "coins": 273
+    "score_type": "coins",
+    "coins": 290
   },
   {
     "name": "aldo",
+    "score_type": "coins",
     "coins": 154
   },
   {
     "name": "nswrf",
+    "score_type": "coins",
     "coins": 148
+  },
+  {
+    "name": "jon",
+    "score_type": "time",
+    "lap_time": 35.699,
+    "coins": 0
+  },
+  {
+    "name": "ada",
+    "score_type": "time",
+    "lap_time": 37.339,
+    "coins": 0
+  },
+  {
+    "name": "AI",
+    "score_type": "time",
+    "lap_time": 22.454,
+    "coins": 0
   }
 ]

@@ -11,7 +11,7 @@ from env_compat import make_car_racing_env
 
 #SETTINGS
 
-TOTAL_TIMESTEPS = 250000   # increase to 1_000_000 for better results
+TOTAL_TIMESTEPS = 750000   # increase to 1_000_000 for better results
 SAVE_EVERY      = 25000   # saves a checkpoint every 50k steps
 MODEL_NAME      = "racenet_cnn_ppo_legacy"
 SAVE_DIR        = "./models"

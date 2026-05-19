@@ -45,8 +45,8 @@ class GymnasiumToGymWrapper(gym.Wrapper):
         if "seed" not in kwargs and self._pending_seed is not None:
             kwargs["seed"] = self._pending_seed
             self._pending_seed = None
-        obs, _info = self.env.reset(**kwargs)
-        return obs
+        obs, info = self.env.reset(**kwargs)
+        return obs, info  # FIX 1: return both obs and info
 
     def step(self, action):
         obs, reward, terminated, truncated, info = self.env.step(action)
@@ -55,7 +55,7 @@ class GymnasiumToGymWrapper(gym.Wrapper):
         info["track_tiles_total"] = total_tiles
         info["track_tiles_visited"] = visited_tiles
         info["track_completed"] = total_tiles > 0 and visited_tiles >= total_tiles
-        return obs, reward, terminated or truncated, info
+        return obs, reward, terminated, truncated, info  # FIX 2: keep terminated and truncated separate
 
     def render(self):
         return self.env.render()
