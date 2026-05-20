@@ -1,55 +1,26 @@
 [
   {
-    "name": "Nam",
-    "score_type": "coins",
-    "coins": 319
+    "name": "Aldorino",
+    "map": "Map 2",
+    "score_type": "time",
+    "lap_time": 17.885
   },
   {
     "name": "AI",
+    "map": "Map 3",
     "score_type": "coins",
-    "coins": 316
-  },
-  {
-    "name": "Jonathan",
-    "score_type": "coins",
-    "coins": 309
-  },
-  {
-    "name": "j",
-    "score_type": "coins",
-    "coins": 296
-  },
-  {
-    "name": "JOO",
-    "score_type": "coins",
-    "coins": 191
-  },
-  {
-    "name": "aldo",
-    "score_type": "coins",
-    "coins": 154
-  },
-  {
-    "name": "nswrf",
-    "score_type": "coins",
-    "coins": 148
-  },
-  {
-    "name": "jon",
-    "score_type": "time",
-    "lap_time": 35.699,
-    "coins": 0
-  },
-  {
-    "name": "ada",
-    "score_type": "time",
-    "lap_time": 37.339,
-    "coins": 0
+    "coins": 275
   },
   {
     "name": "AI",
+    "map": "Map 4",
     "score_type": "time",
-    "lap_time": 19.998,
-    "coins": 0
+    "lap_time": 16.365
+  },
+  {
+    "name": "AI",
+    "map": "Map 1",
+    "score_type": "time",
+    "lap_time": 20.566
   }
 ]
