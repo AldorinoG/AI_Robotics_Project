@@ -10,10 +10,10 @@ Apex AI is a reinforcement learning project built on OpenAI Gymnasium's CarRacin
 
 | Name | Student ID |
 |---|---|
-| Aldorino Gladwyn | |
-| Maksim Lovchev | |
-| Mikhail Lazarev | |
-| Hong Nam Hoang | |
+| Aldorino Gladwyn | 14468944 |
+| Maksim Lovchev | 24966780 |
+| Mikhail Lazarev | 14472777 |
+| Hong Nam Hoang | 24708378 |
 
 ---
 
