@@ -5,6 +5,11 @@
     "coins": 319
   },
   {
+    "name": "AI",
+    "score_type": "coins",
+    "coins": 316
+  },
+  {
     "name": "Jonathan",
     "score_type": "coins",
     "coins": 309
@@ -15,9 +20,9 @@
     "coins": 296
   },
   {
-    "name": "AI",
+    "name": "JOO",
     "score_type": "coins",
-    "coins": 290
+    "coins": 191
   },
   {
     "name": "aldo",
@@ -44,7 +49,7 @@
   {
     "name": "AI",
     "score_type": "time",
-    "lap_time": 22.454,
+    "lap_time": 19.998,
     "coins": 0
   }
 ]
