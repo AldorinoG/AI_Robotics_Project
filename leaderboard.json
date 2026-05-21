@@ -1,26 +1,182 @@
 [
   {
     "name": "Aldorino",
-    "map": "Map 2",
+    "map": "Map 1",
     "score_type": "time",
-    "lap_time": 17.885
+    "lap_time": 24.613
   },
   {
-    "name": "AI",
-    "map": "Map 3",
-    "score_type": "coins",
-    "coins": 275
+    "name": "Mikhail",
+    "map": "Map 1",
+    "score_type": "time",
+    "lap_time": 33.596
   },
   {
-    "name": "AI",
-    "map": "Map 4",
+    "name": "Maksim",
+    "map": "Map 1",
     "score_type": "time",
-    "lap_time": 16.365
+    "lap_time": 26.922
+  },
+  {
+    "name": "Nam",
+    "map": "Map 1",
+    "score_type": "time",
+    "lap_time": 33.944
   },
   {
     "name": "AI",
     "map": "Map 1",
     "score_type": "time",
-    "lap_time": 20.566
+    "lap_time": 21.569
+  },
+  {
+    "name": "Aldorino",
+    "map": "Map 1",
+    "score_type": "coins",
+    "coins": 284
+  },
+  {
+    "name": "AI",
+    "map": "Map 1",
+    "score_type": "coins",
+    "coins": 316
+  },
+  {
+    "name": "Mikhail",
+    "map": "Map 1",
+    "score_type": "coins",
+    "coins": 288
+  },
+  {
+    "name": "Maksim",
+    "map": "Map 1",
+    "score_type": "coins",
+    "coins": 242
+  },
+  {
+    "name": "Nam",
+    "map": "Map 1",
+    "score_type": "coins",
+    "coins": 270
+  },
+  {
+    "name": "Aldorino",
+    "map": "Map 2",
+    "score_type": "time",
+    "lap_time": 19.99
+  },
+  {
+    "name": "Mikhail",
+    "map": "Map 2",
+    "score_type": "time",
+    "lap_time": 30.142
+  },
+  {
+    "name": "Maksim",
+    "map": "Map 2",
+    "score_type": "time",
+    "lap_time": 20.247
+  },
+  {
+    "name": "Nam",
+    "map": "Map 2",
+    "score_type": "time",
+    "lap_time": 20.66
+  },
+  {
+    "name": "Aldorino",
+    "map": "Map 2",
+    "score_type": "coins",
+    "coins": 232
+  },
+  {
+    "name": "Mikhail",
+    "map": "Map 2",
+    "score_type": "coins",
+    "coins": 266
+  },
+  {
+    "name": "Maksim",
+    "map": "Map 2",
+    "score_type": "coins",
+    "coins": 228
+  },
+  {
+    "name": "Nam",
+    "map": "Map 2",
+    "score_type": "coins",
+    "coins": 206
+  },
+  {
+    "name": "AI",
+    "map": "Map 2",
+    "score_type": "coins",
+    "coins": 275
+  },
+  {
+    "name": "AI",
+    "map": "Map 2",
+    "score_type": "time",
+    "lap_time": 16.538
+  },
+  {
+    "name": "Aldorino",
+    "map": "Map 3",
+    "score_type": "time",
+    "lap_time": 18.857
+  },
+  {
+    "name": "Mikhail",
+    "map": "Map 3",
+    "score_type": "time",
+    "lap_time": 19.175
+  },
+  {
+    "name": "Nam",
+    "map": "Map 3",
+    "score_type": "time",
+    "lap_time": 18.96
+  },
+  {
+    "name": "Maksim",
+    "map": "Map 3",
+    "score_type": "time",
+    "lap_time": 20.21
+  },
+  {
+    "name": "AI",
+    "map": "Map 3",
+    "score_type": "time",
+    "lap_time": 17.655
+  },
+  {
+    "name": "Aldorino",
+    "map": "Map 3",
+    "score_type": "coins",
+    "coins": 264
+  },
+  {
+    "name": "Mikhail",
+    "map": "Map 3",
+    "score_type": "coins",
+    "coins": 260
+  },
+  {
+    "name": "Nam",
+    "map": "Map 3",
+    "score_type": "coins",
+    "coins": 262
+  },
+  {
+    "name": "Maksim",
+    "map": "Map 3",
+    "score_type": "coins",
+    "coins": 270
+  },
+  {
+    "name": "AI",
+    "map": "Map 3",
+    "score_type": "coins",
+    "coins": 282
   }
 ]

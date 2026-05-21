@@ -17,7 +17,7 @@ from env_compat import make_car_racing_env
 SAVE_DIR             = "./models"
 MODEL_NAME           = "racenet_cnn_ppo_legacy_final"
 LEADERBOARD_FILE     = "leaderboard.json"
-VIEWER_SIZE          = (1100, 800)
+VIEWER_SIZE          = (900, 700)
 MAX_RACE_STEPS       = 100000
 TIME_LIMIT_SECONDS   = 30
 LAP_COMPLETE_PERCENT = 0.94
@@ -42,7 +42,7 @@ class RaceViewer:
     def __init__(self, title):
         self.screen       = pygame.display.set_mode(VIEWER_SIZE, pygame.RESIZABLE)
         pygame.display.set_caption(title)
-        self.camera_zoom  = 5.5  # scale up the 96x96 render to fill the window
+        self.camera_zoom  = 1.5  # scale up the 96x96 render to fill the window
         self.camera_pan_x = 0
         self.camera_pan_y = 0
         # Minimap world-bounds (computed once when track is first seen)
