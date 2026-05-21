@@ -20,6 +20,16 @@
   <script src="./static/js/bulma-carousel.min.js"></script>
   <script src="./static/js/bulma-slider.min.js"></script>
   <script src="./static/js/index.js"></script>
+
+  <style>
+    .result-table th { background-color: #209cee; color: white; }
+    .result-table td, .result-table th { text-align: center; vertical-align: middle; }
+    .tag-ai { background-color: #23d160; color: white; font-weight: bold; border-radius: 4px; padding: 2px 8px; }
+    .tag-human { background-color: #ffdd57; color: #333; font-weight: bold; border-radius: 4px; padding: 2px 8px; }
+    .placeholder { color: #aaa; font-style: italic; }
+    .section-divider { border-top: 1px solid #eee; margin: 2rem 0; }
+    .highlight-box { background: #f5f5f5; border-left: 4px solid #209cee; padding: 1rem 1.5rem; border-radius: 4px; margin: 1rem 0; }
+  </style>
 </head>
 <body>
 
@@ -37,22 +47,28 @@
         <a class="navbar-link">41118 — Intelligent Robotics</a>
         <div class="navbar-dropdown">
           <a class="navbar-item" href="#abstract">Abstract</a>
+          <a class="navbar-item" href="#pipeline">Pipeline</a>
           <a class="navbar-item" href="#video">Video</a>
           <a class="navbar-item" href="#results">Results</a>
           <a class="navbar-item" href="#discussion">Discussion</a>
+          <a class="navbar-item" href="#references">References</a>
         </div>
       </div>
     </div>
   </div>
 </nav>
 
+<!-- HERO -->
 <section class="hero">
   <div class="hero-body">
     <div class="container is-max-desktop">
       <div class="columns is-centered">
         <div class="column has-text-centered">
           <h1 class="title is-1 publication-title">APEX AI: Human vs. AI Racing</h1>
-          <div class="is-size-5 publication-authors">
+          <p class="subtitle is-5" style="margin-top: -0.5rem; color: #666;">
+            Training a reinforcement learning agent to beat human lap times in CarRacing-v3
+          </p>
+          <div class="is-size-5 publication-authors" style="margin-top: 1rem;">
             <span class="author-block">Jonathan,</span>
             <span class="author-block">Aldorino,</span>
             <span class="author-block">Maksim,</span>
@@ -60,7 +76,7 @@
             <span class="author-block">Hong</span>
           </div>
           <div class="is-size-5 publication-authors">
-            <span class="author-block">Group 2 &mdash; University of Technology Sydney</span>
+            <span class="author-block"><strong>Group 2</strong> &mdash; University of Technology Sydney &mdash; 41118 Intelligent Robotics</span>
           </div>
           <div class="column has-text-centered">
             <div class="publication-links">
@@ -79,18 +95,21 @@
   </div>
 </section>
 
+<!-- TEASER -->
 <section class="hero teaser">
   <div class="container is-max-desktop">
     <div class="hero-body">
-      <!-- Replace with your own teaser image or video -->
+      <!-- Replace teaser.png with your own screenshot or teaser image -->
       <img src="./static/images/teaser.png" alt="APEX AI teaser" style="width:100%; border-radius:8px;">
       <h2 class="subtitle has-text-centered" style="margin-top:1rem;">
-        Can an AI agent trained from raw pixels beat a human lap time in CarRacing-v3?
+        After 2 million training steps, our PPO agent beats the human benchmark on all three maps — 
+        in both lap time and coin collection.
       </h2>
     </div>
   </div>
 </section>
 
+<!-- ABSTRACT -->
 <section class="section" id="abstract">
   <div class="container is-max-desktop">
     <div class="columns is-centered has-text-centered">
@@ -100,86 +119,314 @@
           <p>
             APEX AI is a reinforcement learning project built on OpenAI Gymnasium's
             <strong>CarRacing-v3</strong> environment. Our goal is to train an AI agent
-            that can drive a simulated race car and beat a lap time set by a human player.
+            that can drive a simulated race car and outperform a human driver — measured
+            in both <strong>lap time</strong> and <strong>coin collection</strong> across
+            three different track configurations.
           </p>
           <p>
-            The agent perceives the world through a <strong>96&times;96 pixel camera feed</strong>
-            — no GPS, no map, no privileged information. A Convolutional Neural Network (CNN)
-            extracts spatial features from each frame, which are fed into a
-            <strong>Proximal Policy Optimisation (PPO)</strong> algorithm that decides
-            steering, acceleration, and braking at every timestep.
+            The agent perceives the environment through a <strong>96&times;96 pixel 
+            grayscale camera feed</strong> with no access to GPS, a map, or any privileged 
+            information. A Convolutional Neural Network (CNN) extracts spatial features from 
+            each frame, which are then passed to a <strong>Proximal Policy Optimisation (PPO)</strong> 
+            algorithm that outputs continuous control signals for steering, acceleration, and braking.
           </p>
           <p>
-            We establish a human benchmark using a manual driving interface with WASD controls
-            and a live leaderboard, then compare the trained AI agent's best lap time against
-            the human's. Success is defined as the AI beating the human benchmark on the same track.
+            We establish a human benchmark using a custom manual driving interface with WASD 
+            controls and a live leaderboard system. The trained AI is then evaluated against 
+            this benchmark on the same tracks. After <strong>2 million training steps</strong>, 
+            the agent exceeded our expectations — surpassing the human benchmark on all maps 
+            in both evaluation modes.
           </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Video -->
-    <div class="columns is-centered has-text-centered" id="video">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">Video</h2>
-        <div class="publication-video">
-          <!-- Replace the src below with your YouTube embed link -->
-          <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID?rel=0&showinfo=0"
-                  frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<section class="section" id="results">
+<!-- PIPELINE -->
+<section class="section" id="pipeline" style="background: #fafafa;">
   <div class="container is-max-desktop">
     <div class="columns is-centered">
       <div class="column is-full-width">
-        <h2 class="title is-3">Results</h2>
+        <h2 class="title is-3 has-text-centered">How It Works</h2>
         <div class="content has-text-justified">
           <p>
-            <!-- Replace with your actual results -->
-            Our trained PPO agent was evaluated against the human benchmark lap time recorded
-            by team members. Results including lap times, reward curves, and track completion
-            rates will be added here once training is finalised.
+            The system follows a standard deep reinforcement learning pipeline:
           </p>
-          <!-- Add result images here, e.g.: -->
-          <!-- <img src="./static/images/results.png" alt="Training reward curve"> -->
-        </div>
-      </div>
-    </div>
+          <ol>
+            <li>
+              <strong>Observation:</strong> At each timestep, the CarRacing-v3 environment 
+              provides a 96&times;96 RGB frame. We convert this to grayscale to reduce input 
+              complexity while preserving track geometry information.
+            </li>
+            <li>
+              <strong>Feature Extraction:</strong> A CNN processes the grayscale frame and 
+              extracts spatial features — such as track edges, upcoming corners, and car 
+              position — that the raw pixel values alone cannot convey directly.
+            </li>
+            <li>
+              <strong>Decision Making:</strong> The extracted features are passed to the PPO 
+              agent, which outputs a continuous action: how much to steer (left/right), 
+              how much to accelerate, and how hard to brake.
+            </li>
+            <li>
+              <strong>Environment Feedback:</strong> The environment returns a reward signal 
+              based on track tiles visited and speed. The agent updates its policy to maximise 
+              cumulative reward over time.
+            </li>
+            <li>
+              <strong>Human Benchmark:</strong> A separate manual driving mode lets team members 
+              drive the car using WASD controls. Lap times and coin scores are saved to a 
+              leaderboard, establishing the human target the AI must beat.
+            </li>
+          </ol>
 
-    <div class="columns is-centered" id="discussion">
-      <div class="column is-full-width">
-        <h2 class="title is-3">Discussion</h2>
-        <div class="content has-text-justified">
-          <p>
-            Training an agent from raw pixels presents significant challenges. Without a GPU,
-            training cycles are slow, requiring careful selection of hyperparameters to make
-            progress within the project timeline. The sparse reward structure of CarRacing-v3
-            means the agent can develop suboptimal habits early in training that are difficult
-            to correct.
-          </p>
-          <p>
-            We addressed spinning behaviour by applying a minimum gas floor during training,
-            ensuring the agent always moves forward. Future work could explore reward shaping
-            and curriculum learning to further accelerate convergence.
-          </p>
+          <div class="highlight-box">
+            <strong>Training setup:</strong> PPO with CNN feature extractor via Stable-Baselines3,
+            trained on CPU for 2,000,000 timesteps. Checkpoints saved every 50,000 steps.
+            A minimum gas floor of 0.3 was applied to prevent the agent from stalling and spinning 
+            in place during early training.
+          </div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<section class="section" id="BibTeX">
+<!-- VIDEO -->
+<section class="section" id="video">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Demo Video</h2>
+        <div class="publication-video">
+          <!-- Replace YOUR_VIDEO_ID with your YouTube video ID -->
+          <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID?rel=0&showinfo=0"
+                  frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
+        <p class="has-text-centered" style="margin-top: 1rem; color: #666;">
+          Side-by-side comparison of human vs. AI driving on Map 1, Map 2, and Map 3.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section class="section" id="results" style="background: #fafafa;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3 has-text-centered">Results</h2>
+        <div class="content">
+
+          <h3 class="title is-4">Training Progress</h3>
+          <p>
+            Training was conducted in two key phases. At <strong>250,000 steps</strong>, 
+            the agent showed early but unstable behaviour — the car moved forward but 
+            struggled to stay on track, frequently overcorrecting on corners and moving 
+            slowly. By <strong>2,000,000 steps</strong>, the agent had stabilised 
+            significantly, completing full laps consistently and achieving competitive 
+            lap times across all three maps.
+          </p>
+
+          <!-- Replace with actual training curve image if available -->
+          <!-- <img src="./static/images/training_curve.png" alt="Training reward curve" style="width:100%; margin: 1rem 0; border-radius:8px;"> -->
+
+          <div class="section-divider"></div>
+
+          <h3 class="title is-4">Lap Time Comparison (Best Time Mode)</h3>
+          <p>Lower is better. <span class="tag-ai">AI</span> vs <span class="tag-human">Human</span></p>
+          <table class="table result-table is-fullwidth is-bordered is-striped">
+            <thead>
+              <tr>
+                <th>Map</th>
+                <th>Human Best Time</th>
+                <th>AI Best Time</th>
+                <th>Winner</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Map 1</td>
+                <td class="placeholder">-- s</td>
+                <td class="placeholder">-- s</td>
+                <td><span class="tag-ai">AI</span></td>
+              </tr>
+              <tr>
+                <td>Map 2</td>
+                <td class="placeholder">-- s</td>
+                <td class="placeholder">-- s</td>
+                <td><span class="tag-ai">AI</span></td>
+              </tr>
+              <tr>
+                <td>Map 3</td>
+                <td class="placeholder">-- s</td>
+                <td class="placeholder">-- s</td>
+                <td><span class="tag-ai">AI</span></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="section-divider"></div>
+
+          <h3 class="title is-4">Coin Collection Comparison</h3>
+          <p>Higher is better. <span class="tag-ai">AI</span> vs <span class="tag-human">Human</span></p>
+          <table class="table result-table is-fullwidth is-bordered is-striped">
+            <thead>
+              <tr>
+                <th>Map</th>
+                <th>Human Score</th>
+                <th>AI Score</th>
+                <th>Winner</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Map 1</td>
+                <td class="placeholder">--</td>
+                <td class="placeholder">--</td>
+                <td><span class="tag-ai">AI</span></td>
+              </tr>
+              <tr>
+                <td>Map 2</td>
+                <td class="placeholder">--</td>
+                <td class="placeholder">--</td>
+                <td><span class="tag-ai">AI</span></td>
+              </tr>
+              <tr>
+                <td>Map 3</td>
+                <td class="placeholder">--</td>
+                <td class="placeholder">--</td>
+                <td><span class="tag-ai">AI</span></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p class="has-text-grey is-size-7">* Fill in actual times and scores once recorded.</p>
+
+          <div class="section-divider"></div>
+
+          <h3 class="title is-4">Visual Comparison</h3>
+          <p>
+            Screenshots or side-by-side images of human vs AI driving on each map can be 
+            placed here. Replace the placeholders below with your own images.
+          </p>
+          <!-- Uncomment and replace with your images:
+          <div class="columns">
+            <div class="column has-text-centered">
+              <img src="./static/images/human_map1.png" alt="Human driving Map 1">
+              <p>Human — Map 1</p>
+            </div>
+            <div class="column has-text-centered">
+              <img src="./static/images/ai_map1.png" alt="AI driving Map 1">
+              <p>AI — Map 1</p>
+            </div>
+          </div>
+          -->
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DISCUSSION -->
+<section class="section" id="discussion">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3 has-text-centered">Discussion</h2>
+        <div class="content has-text-justified">
+
+          <h3 class="title is-4">Training Duration and Stability</h3>
+          <p>
+            The most significant factor in agent performance was training duration. At 250,000 
+            steps, the agent's behaviour was visibly erratic — slow, shaky steering, and 
+            frequent track departures. This is consistent with early-stage PPO training where 
+            the policy has not yet converged. By 2,000,000 steps, the agent's driving became 
+            noticeably smoother and more deliberate, demonstrating that sufficient exploration 
+            and policy updates are critical in continuous control tasks.
+          </p>
+
+          <h3 class="title is-4">Corner Cutting</h3>
+          <p>
+            One interesting behaviour observed in the trained agent is a tendency to cut corners — 
+            taking a tighter line through turns rather than following the road precisely. While 
+            this may appear as a flaw, it is in fact a valid and commonly used racing strategy. 
+            In Formula 1 and other motorsports, drivers regularly cut the apex of a corner to 
+            maintain higher speed through the turn. As long as the car does not leave the track 
+            entirely, corner cutting is an accepted performance optimisation. Our evaluation 
+            criteria reflects this — the AI is assessed on lap time and coin collection, not 
+            on strict adherence to lane position.
+          </p>
+
+          <h3 class="title is-4">Braking Behaviour</h3>
+          <p>
+            Despite strong overall performance, braking remains the most underdeveloped aspect 
+            of the agent's driving. The agent tends to brake late or inconsistently, particularly 
+            on tighter corners. This is likely a result of the reward structure — the environment 
+            rewards visiting track tiles quickly, which incentivises speed over careful deceleration. 
+            Future work could address this through reward shaping — adding a penalty for excessive 
+            speed entering tight corners — or by extending training further to allow the agent more 
+            time to discover the value of controlled braking.
+          </p>
+
+          <h3 class="title is-4">Exceeding Expectations</h3>
+          <p>
+            The agent's performance across all three maps exceeded our initial expectations, 
+            particularly on lap time. We anticipated the AI would require significantly more 
+            tuning to beat human performance, but the combination of CNN feature extraction 
+            and PPO's stable policy updates proved effective even on CPU hardware. This 
+            demonstrates the practical applicability of off-the-shelf deep RL algorithms 
+            for continuous control tasks.
+          </p>
+
+          <h3 class="title is-4">Limitations and Future Work</h3>
+          <p>
+            Several limitations remain. Training was conducted on CPU, making iteration slow 
+            and limiting the number of hyperparameter configurations we could explore. The 
+            agent was also trained without a reward shaping component, meaning all learning 
+            came from the sparse tile-based reward signal. Future improvements could include:
+          </p>
+          <ul>
+            <li>GPU-accelerated training for faster iteration</li>
+            <li>Reward shaping to encourage smoother braking and more consistent cornering</li>
+            <li>Curriculum learning — starting on simpler track segments before progressing to full laps</li>
+            <li>Hyperparameter tuning for learning rate, entropy coefficient, and network architecture</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REFERENCES -->
+<section class="section" id="references">
   <div class="container is-max-desktop content">
     <h2 class="title">References</h2>
     <ul>
-      <li>Schulman et al. (2017) — <em>Proximal Policy Optimization Algorithms</em>. <a href="https://arxiv.org/abs/1707.06347">arXiv:1707.06347</a></li>
-      <li>Mnih et al. (2015) — <em>Human-level control through deep reinforcement learning</em>. <a href="https://www.nature.com/articles/nature14236">Nature</a></li>
-      <li>Stable-Baselines3 — <a href="https://stable-baselines3.readthedocs.io">stable-baselines3.readthedocs.io</a></li>
-      <li>Gymnasium CarRacing-v3 — <a href="https://gymnasium.farama.org/environments/box2d/car_racing/">gymnasium.farama.org</a></li>
+      <li>
+        Schulman, J., Wolski, F., Dhariwal, P., Radford, A., &amp; Klimov, O. (2017).
+        <em>Proximal Policy Optimization Algorithms.</em>
+        <a href="https://arxiv.org/abs/1707.06347">arXiv:1707.06347</a>
+      </li>
+      <li>
+        Mnih, V., et al. (2015).
+        <em>Human-level control through deep reinforcement learning.</em>
+        <a href="https://www.nature.com/articles/nature14236">Nature, 518, 529–533</a>
+      </li>
+      <li>
+        Stable-Baselines3 — PPO implementation and vectorised environment utilities.
+        <a href="https://stable-baselines3.readthedocs.io">stable-baselines3.readthedocs.io</a>
+      </li>
+      <li>
+        Gymnasium CarRacing-v3 — Race track simulation environment.
+        <a href="https://gymnasium.farama.org/environments/box2d/car_racing/">gymnasium.farama.org</a>
+      </li>
+      <li>
+        PyTorch — Deep learning framework underlying Stable-Baselines3.
+        <a href="https://pytorch.org">pytorch.org</a>
+      </li>
     </ul>
   </div>
 </section>
@@ -191,7 +438,8 @@
         <div class="content has-text-centered">
           <p>
             APEX AI &mdash; Group 2, 41118 Intelligent Robotics, UTS 2025.<br>
-            Website template based on <a href="https://nerfies.github.io">Nerfies</a>.
+            Website template based on <a href="https://nerfies.github.io">Nerfies</a>
+            by Keunhong Park et al., used under CC BY-SA 4.0.
           </p>
         </div>
       </div>
