@@ -29,6 +29,51 @@
     .section-divider { border-top: 1px solid #eee; margin: 2rem 0; }
     .highlight-box { background: #f5f5f5; border-left: 4px solid #209cee; padding: 1rem 1.5rem; border-radius: 4px; margin: 1rem 0; }
     .win-margin { color: #23d160; font-weight: bold; }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    .team-card {
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .team-card-header {
+      background-color: #1a6e8a;
+      color: white;
+      padding: 1rem;
+      font-size: 1.1rem;
+      font-weight: bold;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .team-card-body {
+      background-color: #1e2d3d;
+      color: white;
+      padding: 1.2rem;
+      text-align: center;
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+    }
+    .team-card-body .role {
+      font-weight: bold;
+      font-size: 0.95rem;
+    }
+    .team-card-body .tag-racing {
+      font-weight: bold;
+      font-size: 0.9rem;
+      color: #aac8d8;
+    }
   </style>
 </head>
 <body>
@@ -47,8 +92,9 @@
         <a class="navbar-link">41118 — Artificial Intelligent in Robotics</a>
         <div class="navbar-dropdown">
           <a class="navbar-item" href="#abstract">Abstract</a>
+          <a class="navbar-item" href="#team">Team</a>
           <a class="navbar-item" href="#pipeline">Pipeline</a>
-          <a class="navbar-item" href="#video">Video</a>
+          <a class="navbar-item" href="#video">Final Video</a>
           <a class="navbar-item" href="#results">Results</a>
           <a class="navbar-item" href="#discussion">Discussion</a>
           <a class="navbar-item" href="#references">References</a>
@@ -66,13 +112,13 @@
         <div class="column has-text-centered">
           <h1 class="title is-1 publication-title">APEX AI: Human vs. AI Racing</h1>
           <img src="./static/images/ApexAIThumbnail.png" alt="APEX AI Thumbnail" style="width:100%; border-radius:8px; margin: 1rem 0;">
-          <p class="subtitle is-5" style="margin-top: -0.5rem; color: #666;">
+          <p class="subtitle is-5" style="color: #666;">
             Training a reinforcement learning agent to beat human lap times in CarRacing-v3
           </p>
           <div class="is-size-5 publication-authors" style="margin-top: 1rem;">
             <span class="author-block">Aldorino Gladwyn,</span>
-            <span class="author-block">Maksim Lovchev,</span>
             <span class="author-block">Mikhail Lazarev,</span>
+            <span class="author-block">Maksim Lovchev,</span>
             <span class="author-block">Hong Nam Hoang</span>
           </div>
           <div class="is-size-5 publication-authors">
@@ -94,8 +140,6 @@
     </div>
   </div>
 </section>
-
-
 
 <!-- ABSTRACT -->
 <section class="section" id="abstract">
@@ -132,8 +176,45 @@
   </div>
 </section>
 
+<!-- TEAM -->
+<section class="section" id="team" style="background: #fafafa;">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Team</h2>
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-card-header">Aldorino Gladwyn</div>
+        <div class="team-card-body">
+          <span class="role">Environment wrappers and Preprocessing</span>
+          <span class="tag-racing">Racing</span>
+        </div>
+      </div>
+      <div class="team-card">
+        <div class="team-card-header">Mikhail Lazarev</div>
+        <div class="team-card-body">
+          <span class="role">Evaluation metrics and Reporting</span>
+          <span class="tag-racing">Racing</span>
+        </div>
+      </div>
+      <div class="team-card">
+        <div class="team-card-header">Maksim Lovchev</div>
+        <div class="team-card-body">
+          <span class="role">Runner UI and Gameplay</span>
+          <span class="tag-racing">Racing</span>
+        </div>
+      </div>
+      <div class="team-card">
+        <div class="team-card-header">Hong Nam Hoang</div>
+        <div class="team-card-body">
+          <span class="role">PPO training and Hyperparameters</span>
+          <span class="tag-racing">Racing</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- PIPELINE -->
-<section class="section" id="pipeline" style="background: #fafafa;">
+<section class="section" id="pipeline">
   <div class="container is-max-desktop">
     <div class="columns is-centered">
       <div class="column is-full-width">
@@ -173,14 +254,62 @@
             A minimum gas floor of 0.3 was applied to prevent the agent from stalling and spinning
             in place during early training.
           </div>
+
+          <!-- Flowchart SVG -->
+          <div style="margin-top: 2rem;">
+            <svg width="100%" viewBox="0 0 680 820" role="img">
+              <title>APEX AI pipeline flowchart</title>
+              <desc>Flowchart showing how the APEX AI agent processes camera frames through CNN and PPO to control the car</desc>
+              <defs>
+                <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </marker>
+              </defs>
+              <rect x="240" y="30" width="200" height="44" rx="22" fill="#e8e8e8" stroke="#999" stroke-width="0.5"/>
+              <text font-family="sans-serif" font-size="13" font-weight="500" x="340" y="52" text-anchor="middle" dominant-baseline="central" fill="#333">CarRacing-v3 environment</text>
+              <line x1="340" y1="74" x2="340" y2="108" stroke="#888" stroke-width="1.2" marker-end="url(#arrow)"/>
+              <rect x="200" y="108" width="280" height="56" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="0.5"/>
+              <text font-family="sans-serif" font-size="13" font-weight="500" x="340" y="128" text-anchor="middle" dominant-baseline="central" fill="#1e3a5f">Raw camera frame</text>
+              <text font-family="sans-serif" font-size="11" x="340" y="150" text-anchor="middle" dominant-baseline="central" fill="#2563eb">96×96 RGB pixels per timestep</text>
+              <line x1="340" y1="164" x2="340" y2="198" stroke="#888" stroke-width="1.2" marker-end="url(#arrow)"/>
+              <rect x="200" y="198" width="280" height="56" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="0.5"/>
+              <text font-family="sans-serif" font-size="13" font-weight="500" x="340" y="218" text-anchor="middle" dominant-baseline="central" fill="#1e3a5f">Grayscale preprocessing</text>
+              <text font-family="sans-serif" font-size="11" x="340" y="240" text-anchor="middle" dominant-baseline="central" fill="#2563eb">RGB → single channel, reduce complexity</text>
+              <line x1="340" y1="254" x2="340" y2="288" stroke="#888" stroke-width="1.2" marker-end="url(#arrow)"/>
+              <rect x="180" y="288" width="320" height="56" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="0.5"/>
+              <text font-family="sans-serif" font-size="13" font-weight="500" x="340" y="308" text-anchor="middle" dominant-baseline="central" fill="#3b0764">CNN — convolutional neural network</text>
+              <text font-family="sans-serif" font-size="11" x="340" y="330" text-anchor="middle" dominant-baseline="central" fill="#6d28d9">Extracts track edges, corners, car position</text>
+              <line x1="340" y1="344" x2="340" y2="378" stroke="#888" stroke-width="1.2" marker-end="url(#arrow)"/>
+              <rect x="200" y="378" width="280" height="56" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="0.5"/>
+              <text font-family="sans-serif" font-size="13" font-weight="500" x="340" y="398" text-anchor="middle" dominant-baseline="central" fill="#3b0764">Feature vector</text>
+              <text font-family="sans-serif" font-size="11" x="340" y="420" text-anchor="middle" dominant-baseline="central" fill="#6d28d9">Compressed spatial representation</text>
+              <line x1="340" y1="434" x2="340" y2="468" stroke="#888" stroke-width="1.2" marker-end="url(#arrow)"/>
+              <rect x="180" y="468" width="320" height="56" rx="8" fill="#ccfbf1" stroke="#0d9488" stroke-width="0.5"/>
+              <text font-family="sans-serif" font-size="13" font-weight="500" x="340" y="488" text-anchor="middle" dominant-baseline="central" fill="#042f2e">PPO — proximal policy optimisation</text>
+              <text font-family="sans-serif" font-size="11" x="340" y="510" text-anchor="middle" dominant-baseline="central" fill="#0f766e">Decides action to maximise reward</text>
+              <line x1="340" y1="524" x2="340" y2="558" stroke="#888" stroke-width="1.2" marker-end="url(#arrow)"/>
+              <rect x="160" y="558" width="360" height="56" rx="8" fill="#ccfbf1" stroke="#0d9488" stroke-width="0.5"/>
+              <text font-family="sans-serif" font-size="13" font-weight="500" x="340" y="578" text-anchor="middle" dominant-baseline="central" fill="#042f2e">Continuous action output</text>
+              <text font-family="sans-serif" font-size="11" x="340" y="600" text-anchor="middle" dominant-baseline="central" fill="#0f766e">Steer left/right · accelerate · brake</text>
+              <line x1="340" y1="614" x2="340" y2="648" stroke="#888" stroke-width="1.2" marker-end="url(#arrow)"/>
+              <rect x="200" y="648" width="280" height="56" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="0.5"/>
+              <text font-family="sans-serif" font-size="13" font-weight="500" x="340" y="668" text-anchor="middle" dominant-baseline="central" fill="#451a03">Environment reward</text>
+              <text font-family="sans-serif" font-size="11" x="340" y="690" text-anchor="middle" dominant-baseline="central" fill="#b45309">Track tiles visited + speed bonus</text>
+              <path d="M160 676 L100 676 L100 496 L178 496" fill="none" stroke="#aaa" stroke-width="1" marker-end="url(#arrow)" stroke-dasharray="5 3"/>
+              <text font-family="sans-serif" font-size="10" x="62" y="594" text-anchor="middle" dominant-baseline="central" fill="#888" transform="rotate(-90 62 594)">policy update</text>
+              <line x1="340" y1="704" x2="340" y2="738" stroke="#888" stroke-width="1.2" marker-end="url(#arrow)"/>
+              <rect x="240" y="738" width="200" height="44" rx="22" fill="#e8e8e8" stroke="#999" stroke-width="0.5"/>
+              <text font-family="sans-serif" font-size="13" font-weight="500" x="340" y="760" text-anchor="middle" dominant-baseline="central" fill="#333">Next timestep</text>
+            </svg>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- VIDEO -->
-<section class="section" id="video">
+<!-- FINAL VIDEO -->
+<section class="section" id="video" style="background: #fafafa;">
   <div class="container is-max-desktop">
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
@@ -194,7 +323,7 @@
 </section>
 
 <!-- RESULTS -->
-<section class="section" id="results" style="background: #fafafa;">
+<section class="section" id="results">
   <div class="container is-max-desktop">
     <div class="columns is-centered">
       <div class="column is-full-width">
@@ -228,17 +357,17 @@
             <tbody>
               <tr>
                 <td><strong>Map 1</strong></td>
-                <td><span class="tag-ai">16.54s*</span></td>
+                <td><span class="tag-ai">21.57s</span></td>
                 <td><span class="tag-human">24.61s</span></td>
                 <td>Aldorino</td>
-                <td class="win-margin">+3.04s faster (run: 21.57s)</td>
+                <td class="win-margin">+3.04s faster</td>
               </tr>
               <tr>
                 <td><strong>Map 2</strong></td>
                 <td><span class="tag-ai">16.54s</span></td>
                 <td><span class="tag-human">19.99s</span></td>
                 <td>Aldorino</td>
-                <td class="win-margin">+2.77s faster</td>
+                <td class="win-margin">+3.45s faster</td>
               </tr>
               <tr>
                 <td><strong>Map 3</strong></td>
@@ -249,7 +378,6 @@
               </tr>
             </tbody>
           </table>
-          <p class="has-text-grey is-size-7">* Map 2 leaderboard shows AI personal best of 16.54s across all runs.</p>
 
           <div class="section-divider"></div>
 
@@ -326,8 +454,7 @@
           <h3 class="title is-4">Visual Comparison</h3>
           <p>
             The video below shows a side-by-side comparison of human vs. AI driving behaviour
-            across all three maps. Notice how the AI's driving becomes increasingly smooth and
-            deliberate compared to the more reactive human inputs.
+            across all three maps.
           </p>
           <video controls style="width:100%; border-radius:8px; margin-top:1rem;">
             <source src="./static/videos/VisualComparison.mp4" type="video/mp4">
@@ -340,7 +467,7 @@
 </section>
 
 <!-- DISCUSSION -->
-<section class="section" id="discussion">
+<section class="section" id="discussion" style="background: #fafafa;">
   <div class="container is-max-desktop">
     <div class="columns is-centered">
       <div class="column is-full-width">
@@ -377,12 +504,8 @@
             agent's driving. The agent tends to brake late or inconsistently, particularly when
             approaching tighter corners. This is likely a consequence of the reward structure —
             the environment rewards visiting track tiles quickly, which inherently incentivises
-            maintaining speed over careful deceleration. The agent has therefore learned that
-            staying fast generally produces better rewards, even if it sometimes leads to
-            imprecise cornering. Future work could address this through reward shaping — adding
-            a small penalty for excessive speed on tight corners — or by further extending
-            training to allow the agent more time to discover the long-term benefit of controlled
-            braking.
+            maintaining speed over careful deceleration. Future work could address this through
+            reward shaping or by further extending training.
           </p>
 
           <h3 class="title is-4">Exceeding Expectations</h3>
@@ -391,39 +514,16 @@
             particularly on lap time. We anticipated the AI would require significantly more
             tuning to consistently beat human performance, but the combination of CNN feature
             extraction and PPO's stable policy gradient updates proved effective even on CPU
-            hardware with no GPU acceleration. The largest margin of victory was on Map 1,
-            where the AI finished <strong>3.04 seconds faster</strong> than the best human
-            time. On coin collection, the AI also outperformed every human player on all
-            maps, suggesting the agent has learned not only to drive fast but also to
-            navigate the track efficiently.
+            hardware. The largest margin of victory was on Map 2, where the AI finished
+            <strong>3.45 seconds faster</strong> than the best human time.
           </p>
 
           <h3 class="title is-4">Limitations and Future Work</h3>
-          <p>
-            Several limitations remain worth addressing in future iterations:
-          </p>
           <ul>
-            <li>
-              <strong>CPU-only training:</strong> All training was conducted on CPU, making
-              iteration slow and limiting the number of hyperparameter configurations we
-              could explore within the project timeline. GPU-accelerated training would
-              allow significantly more runs.
-            </li>
-            <li>
-              <strong>Sparse reward signal:</strong> The agent was trained without reward
-              shaping, relying entirely on the tile-based reward. Introducing shaped rewards
-              could accelerate convergence and improve driving quality, particularly braking.
-            </li>
-            <li>
-              <strong>Braking refinement:</strong> As discussed, braking is the primary
-              remaining weakness. Targeted reward shaping or curriculum learning could
-              help address this.
-            </li>
-            <li>
-              <strong>Generalisation:</strong> The agent was evaluated on the same maps it
-              was exposed to during training. Testing on unseen tracks would be a stronger
-              measure of generalisation.
-            </li>
+            <li><strong>CPU-only training:</strong> All training was on CPU, limiting iteration speed and hyperparameter exploration.</li>
+            <li><strong>Sparse reward signal:</strong> No reward shaping was used — all learning came from the tile-based reward.</li>
+            <li><strong>Braking refinement:</strong> The primary remaining weakness — targeted reward shaping could help.</li>
+            <li><strong>Generalisation:</strong> The agent was evaluated on the same maps used during training. Unseen tracks would be a stronger test.</li>
           </ul>
         </div>
       </div>
@@ -436,28 +536,11 @@
   <div class="container is-max-desktop content">
     <h2 class="title">References</h2>
     <ul>
-      <li>
-        Schulman, J., Wolski, F., Dhariwal, P., Radford, A., &amp; Klimov, O. (2017).
-        <em>Proximal Policy Optimization Algorithms.</em>
-        <a href="https://arxiv.org/abs/1707.06347">arXiv:1707.06347</a>
-      </li>
-      <li>
-        Mnih, V., et al. (2015).
-        <em>Human-level control through deep reinforcement learning.</em>
-        <a href="https://www.nature.com/articles/nature14236">Nature, 518, 529–533</a>
-      </li>
-      <li>
-        Stable-Baselines3 — PPO implementation and vectorised environment utilities.
-        <a href="https://stable-baselines3.readthedocs.io">stable-baselines3.readthedocs.io</a>
-      </li>
-      <li>
-        Gymnasium CarRacing-v3 — Race track simulation environment.
-        <a href="https://gymnasium.farama.org/environments/box2d/car_racing/">gymnasium.farama.org</a>
-      </li>
-      <li>
-        PyTorch — Deep learning framework underlying Stable-Baselines3.
-        <a href="https://pytorch.org">pytorch.org</a>
-      </li>
+      <li>Schulman, J., Wolski, F., Dhariwal, P., Radford, A., &amp; Klimov, O. (2017). <em>Proximal Policy Optimization Algorithms.</em> <a href="https://arxiv.org/abs/1707.06347">arXiv:1707.06347</a></li>
+      <li>Mnih, V., et al. (2015). <em>Human-level control through deep reinforcement learning.</em> <a href="https://www.nature.com/articles/nature14236">Nature, 518, 529–533</a></li>
+      <li>Stable-Baselines3 — PPO implementation and vectorised environment utilities. <a href="https://stable-baselines3.readthedocs.io">stable-baselines3.readthedocs.io</a></li>
+      <li>Gymnasium CarRacing-v3 — Race track simulation environment. <a href="https://gymnasium.farama.org/environments/box2d/car_racing/">gymnasium.farama.org</a></li>
+      <li>PyTorch — Deep learning framework underlying Stable-Baselines3. <a href="https://pytorch.org">pytorch.org</a></li>
     </ul>
   </div>
 </section>
