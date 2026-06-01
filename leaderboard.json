@@ -36,12 +36,6 @@
     "coins": 284
   },
   {
-    "name": "AI",
-    "map": "Map 1",
-    "score_type": "coins",
-    "coins": 316
-  },
-  {
     "name": "Mikhail",
     "map": "Map 1",
     "score_type": "coins",
@@ -70,12 +64,6 @@
     "map": "Map 2",
     "score_type": "time",
     "lap_time": 30.142
-  },
-  {
-    "name": "Maksim",
-    "map": "Map 2",
-    "score_type": "time",
-    "lap_time": 20.247
   },
   {
     "name": "Nam",
@@ -108,18 +96,6 @@
     "coins": 206
   },
   {
-    "name": "AI",
-    "map": "Map 2",
-    "score_type": "coins",
-    "coins": 275
-  },
-  {
-    "name": "AI",
-    "map": "Map 2",
-    "score_type": "time",
-    "lap_time": 16.538
-  },
-  {
     "name": "Aldorino",
     "map": "Map 3",
     "score_type": "time",
@@ -142,12 +118,6 @@
     "map": "Map 3",
     "score_type": "time",
     "lap_time": 20.21
-  },
-  {
-    "name": "AI",
-    "map": "Map 3",
-    "score_type": "time",
-    "lap_time": 17.655
   },
   {
     "name": "Aldorino",
@@ -174,9 +144,45 @@
     "coins": 270
   },
   {
+    "name": "Maks",
+    "map": "Map 1",
+    "score_type": "coins",
+    "coins": 330
+  },
+  {
+    "name": "AI",
+    "map": "Map 3",
+    "score_type": "time",
+    "lap_time": 17.655
+  },
+  {
+    "name": "Maksim",
+    "map": "Map 2",
+    "score_type": "time",
+    "lap_time": 18.569
+  },
+  {
+    "name": "AI",
+    "map": "Map 2",
+    "score_type": "coins",
+    "coins": 288
+  },
+  {
+    "name": "AI",
+    "map": "Map 1",
+    "score_type": "coins",
+    "coins": 316
+  },
+  {
     "name": "AI",
     "map": "Map 3",
     "score_type": "coins",
     "coins": 282
+  },
+  {
+    "name": "AI",
+    "map": "Map 2",
+    "score_type": "time",
+    "lap_time": 16.538
   }
 ]

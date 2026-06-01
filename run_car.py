@@ -15,7 +15,8 @@ from stable_baselines3.common.vec_env import DummyVecEnv, VecFrameStack, VecTran
 from env_compat import make_car_racing_env
 
 SAVE_DIR             = "./models"
-MODEL_NAME           = "racenet_cnn_ppo_legacy_final"
+MODEL_NAME           = "n1_800k"
+#MODEL_NAME          = "racenet_cnn_ppo_legacy_final"
 LEADERBOARD_FILE     = "leaderboard.json"
 VIEWER_SIZE          = (900, 700)
 MAX_RACE_STEPS       = 100000
@@ -23,6 +24,18 @@ TIME_LIMIT_SECONDS   = 30
 LAP_COMPLETE_PERCENT = 0.94
 LAP_START_RADIUS     = 8.0
 LAP_MIN_PROGRESS     = 0.5
+
+OFF_TRACK_NO_PROGRESS_STEPS = 40
+OFF_TRACK_TIME_PENALTY      = 2.0
+
+# Keep AI drive env aligned with training settings
+AI_REWARD_SHAPING          = True
+AI_TIME_PENALTY_PER_STEP   = 0.001
+AI_COMPLETION_BONUS        = 10.0
+AI_TERMINATE_NO_PROGRESS   = False
+AI_NO_PROGRESS_STEPS_LIMIT = 40
+AI_OFF_TRACK_PENALTY       = 1.0
+AI_REWARD_CLIP_RANGE       = None
 
 
 MAP_OPTIONS = {
@@ -303,26 +316,40 @@ def track_completed_check(env):
     dist = np.sqrt((car_x - start_x) ** 2 + (car_y - start_y) ** 2)
     return dist <= LAP_START_RADIUS
 
+def _apply_off_track_penalty(tiles_visited, last_tiles, no_progress_steps, penalty_time):
+    if tiles_visited > last_tiles:
+        return tiles_visited, 0, penalty_time
+
+    no_progress_steps += 1
+    if no_progress_steps >= OFF_TRACK_NO_PROGRESS_STEPS:
+        penalty_time += OFF_TRACK_TIME_PENALTY
+        no_progress_steps = 0
+        print(f"\nOff-track penalty: +{OFF_TRACK_TIME_PENALTY:.1f}s")
+    return last_tiles, no_progress_steps, penalty_time
+
 
 # ─── AI DRIVE ─────────────────────────────────────────────────────────────────
 
 def run_ai(map_name, map_seed, game_mode="coins"):
     print("Loading trained AI model...")
 
-    import gymnasium as _gym
-    import env_compat as _ec
-
     def make_gymnasium_env():
         def _init():
-            env = _gym.make(
-                "CarRacing-v3",
+            return make_car_racing_env(
                 render_mode="rgb_array",
-                continuous=True,
                 max_episode_steps=MAX_RACE_STEPS,
                 lap_complete_percent=LAP_COMPLETE_PERCENT,
+                legacy_preprocessing=False,
+                grayscale_obs=True,
+                reward_shaping=AI_REWARD_SHAPING,
+                time_penalty=AI_TIME_PENALTY_PER_STEP,
+                completion_bonus=AI_COMPLETION_BONUS,
+                terminate_on_no_reward=False,
+                terminate_on_no_progress=AI_TERMINATE_NO_PROGRESS,
+                max_no_progress_steps=AI_NO_PROGRESS_STEPS_LIMIT,
+                off_track_penalty=AI_OFF_TRACK_PENALTY,
+                reward_clip=AI_REWARD_CLIP_RANGE,
             )
-            env = _ec.CarRacingLegacyWrapper(env, max_no_reward_steps=None)
-            return env
         return _init
 
     from stable_baselines3.common.vec_env import (
@@ -341,6 +368,9 @@ def run_ai(map_name, map_seed, game_mode="coins"):
     lap_time      = None
     coins         = 0
     total_tiles   = 0
+    last_tiles    = 0
+    no_progress_steps = 0
+    penalty_time  = 0.0
     final_message = None
     timed_out     = False
 
@@ -367,12 +397,19 @@ def run_ai(map_name, map_seed, game_mode="coins"):
 
             elapsed            = time.time() - start_time
             coins, total_tiles = track_progress_check(inner_env)
+            last_tiles, no_progress_steps, penalty_time = _apply_off_track_penalty(
+                coins,
+                last_tiles,
+                no_progress_steps,
+                penalty_time,
+            )
+            elapsed += penalty_time
             lap_done_now       = track_completed_check(inner_env)
 
             print(f"\rAI | {map_name} | {elapsed:.1f}s  tiles: {coins}/{total_tiles}  lap: {lap_done_now}", end="", flush=True)
 
             if lap_done_now:
-                lap_time = time.time() - start_time
+                lap_time = time.time() - start_time + penalty_time
                 print(f"\nAI completed the lap in {lap_time:.2f}s" if game_mode == "time" else f"\nLap complete. Score: {coins} coins")
                 running = False
 
@@ -577,7 +614,7 @@ def show_time_result_screen(name, lap_time, map_name, board):
 
 def launch_gui():
     first_map_name = next(iter(MAP_OPTIONS))
-    result = {"name": None, "mode": None, "map_name": first_map_name, "map_seed": MAP_OPTIONS[first_map_name], "game_mode": "coins"}
+    result = {"name": None, "mode": None, "map_name": first_map_name, "map_seed": MAP_OPTIONS[first_map_name], "game_mode": "time"}
 
     root = tk.Tk()
     root.title("Apex AI — Launcher")
@@ -610,7 +647,7 @@ def launch_gui():
 
     tk.Label(root, text="Game mode:", font=label_font, bg="#0D1117", fg="#FFFFFF").pack()
     GAME_MODES    = {"Collect Coins": "coins", "Best Time": "time"}
-    game_mode_var = tk.StringVar(value="Collect Coins")
+    game_mode_var = tk.StringVar(value="Best Time")
     gm_menu       = tk.OptionMenu(root, game_mode_var, *GAME_MODES.keys())
     gm_menu.config(font=label_font, width=24, bg="#1E293B", fg="#FFFFFF",
                    activebackground="#334155", activeforeground="#FFFFFF", relief="flat", highlightthickness=0)
@@ -709,6 +746,9 @@ def run_game(player_name, map_name, map_seed, game_mode="coins"):
     lap_done      = False
     lap_time      = None
     coins         = 0
+    last_tiles    = 0
+    no_progress_steps = 0
+    penalty_time  = 0.0
     timed_out     = False
     final_message = None
 
@@ -737,10 +777,17 @@ def run_game(player_name, map_name, map_seed, game_mode="coins"):
         if start_time is not None and not lap_done:
             elapsed        = time.time() - start_time
             coins, total_t = track_progress_check(env)
+            last_tiles, no_progress_steps, penalty_time = _apply_off_track_penalty(
+                coins,
+                last_tiles,
+                no_progress_steps,
+                penalty_time,
+            )
+            elapsed += penalty_time
             print(f"\r{elapsed:.1f}s  tiles: {coins}/{total_t}", end="", flush=True)
 
             if track_completed_check(env) or (terminated and not info.get("TimeLimit.truncated", False)):
-                lap_time = time.time() - start_time
+                lap_time = time.time() - start_time + penalty_time
                 lap_done = True
                 print(f"\nLap complete! Time: {lap_time:.2f}s  Tiles: {coins}/{total_t}")
                 running = False
