@@ -39,9 +39,8 @@ AI_REWARD_CLIP_RANGE       = None
 
 
 MAP_OPTIONS = {
-    "Map 1": 21,
-    "Map 2": 84,
-    "Map 3": 126,
+    "Map 1": 84,
+    "Map 2": 126,
 }
 
 
@@ -173,7 +172,7 @@ class RaceViewer:
             if len(pts) >= 3:
                 pygame.draw.polygon(mini, (80, 80, 80), pts)
 
-        # Track centerline + coins
+        # Track centerline + tiles
         track      = getattr(env.unwrapped, "track", [])
         road_tiles = getattr(env.unwrapped, "road", [])
         if len(track) > 1:
@@ -183,7 +182,7 @@ class RaceViewer:
         for idx, (_a, _b, wx, wy) in enumerate(track):
             road_tile = road_tiles[idx] if idx < len(road_tiles) else None
             collected = bool(getattr(road_tile, "road_visited", False))
-            color = (22, 210, 90) if collected else (245, 190, 35)
+            color = (22, 210, 90) if collected else (100, 100, 120)
             px, py = to_mini(wx, wy)
             pygame.draw.circle(mini, color, (px, py), 2)
 
@@ -225,7 +224,7 @@ class RaceViewer:
 
 # ─── LEADERBOARD ──────────────────────────────────────────────────────────────
 # Structure: list of entries, each with:
-#   { "name", "map", "score_type" ("coins"|"time"), "coins"|"lap_time" }
+#   { "name", "map", "score_type" ("time"), "lap_time" }
 
 def load_leaderboard():
     if os.path.exists(LEADERBOARD_FILE):
@@ -237,42 +236,27 @@ def save_leaderboard(data):
     with open(LEADERBOARD_FILE, "w") as f:
         json.dump(data, f, indent=2)
 
-def leaderboard_score(entry):
-    return int(entry.get("coins", 0))
-
-def get_board(map_name, score_type):
-    """Return entries for a specific map + mode, sorted best first."""
+def get_board(map_name):
+    """Return Best Time entries for a specific map, sorted best first."""
     data = load_leaderboard()
-    entries = [e for e in data if e.get("map") == map_name and e.get("score_type") == score_type]
-    if score_type == "time":
-        entries.sort(key=lambda e: e.get("lap_time", float("inf")))
-    else:
-        entries.sort(key=leaderboard_score, reverse=True)
+    entries = [e for e in data if e.get("map") == map_name and e.get("score_type") == "time"]
+    entries.sort(key=lambda e: e.get("lap_time", float("inf")))
     return entries
 
-def add_to_leaderboard(name, map_name, score_type, coins=None, lap_time=None):
-    """Add or update a score for a specific map + mode. Keeps best score per name."""
+def add_to_leaderboard(name, map_name, lap_time):
+    """Add or update a Best Time score. Keeps only the personal best per name."""
     data = load_leaderboard()
-    # Remove old entry for this name/map/mode if it exists and the new score is better
-    others = [e for e in data if not (e.get("name") == name and e.get("map") == map_name and e.get("score_type") == score_type)]
-    existing = [e for e in data if e.get("name") == name and e.get("map") == map_name and e.get("score_type") == score_type]
+    others   = [e for e in data if not (e.get("name") == name and e.get("map") == map_name and e.get("score_type") == "time")]
+    existing = [e for e in data if      e.get("name") == name and e.get("map") == map_name and e.get("score_type") == "time"]
 
-    if score_type == "time" and lap_time is not None:
-        best_existing = min((e.get("lap_time", float("inf")) for e in existing), default=float("inf"))
-        if lap_time < best_existing:
-            new_entry = {"name": name, "map": map_name, "score_type": "time", "lap_time": round(lap_time, 3)}
-        else:
-            new_entry = existing[0] if existing else {"name": name, "map": map_name, "score_type": "time", "lap_time": round(lap_time, 3)}
+    best_existing = min((e.get("lap_time", float("inf")) for e in existing), default=float("inf"))
+    if lap_time < best_existing:
+        new_entry = {"name": name, "map": map_name, "score_type": "time", "lap_time": round(lap_time, 3)}
     else:
-        coins = int(coins) if coins is not None else 0
-        best_existing = max((e.get("coins", 0) for e in existing), default=-1)
-        if coins > best_existing:
-            new_entry = {"name": name, "map": map_name, "score_type": "coins", "coins": coins}
-        else:
-            new_entry = existing[0] if existing else {"name": name, "map": map_name, "score_type": "coins", "coins": coins}
+        new_entry = existing[0] if existing else {"name": name, "map": map_name, "score_type": "time", "lap_time": round(lap_time, 3)}
 
     save_leaderboard(others + [new_entry])
-    return get_board(map_name, score_type)
+    return get_board(map_name)
 
 
 # ─── LAP DETECTION ────────────────────────────────────────────────────────────
@@ -330,7 +314,7 @@ def _apply_off_track_penalty(tiles_visited, last_tiles, no_progress_steps, penal
 
 # ─── AI DRIVE ─────────────────────────────────────────────────────────────────
 
-def run_ai(map_name, map_seed, game_mode="coins"):
+def run_ai(map_name, map_seed):
     print("Loading trained AI model...")
 
     def make_gymnasium_env():
@@ -364,19 +348,17 @@ def run_ai(map_name, map_seed, game_mode="coins"):
     obs       = vec_env.reset()
     inner_env = vec_env.venv.venv.envs[0]
 
-    start_time    = time.time()
-    lap_time      = None
-    coins         = 0
-    total_tiles   = 0
-    last_tiles    = 0
+    start_time        = time.time()
+    lap_time          = None
+    tiles_visited     = 0
+    total_tiles       = 0
+    last_tiles        = 0
     no_progress_steps = 0
-    penalty_time  = 0.0
-    final_message = None
-    timed_out     = False
+    penalty_time      = 0.0
+    final_message     = None
 
     pygame.init()
-    mode_label = "Collect Coins" if game_mode == "coins" else "Best Time"
-    viewer = RaceViewer(f"Apex AI - AI Drive | {map_name} | {mode_label}")
+    viewer = RaceViewer(f"Apex AI - AI Drive | {map_name} | Best Time")
     clock  = pygame.time.Clock()
 
     print("AI is driving. Watch the simulation window.\n")
@@ -395,48 +377,34 @@ def run_ai(map_name, map_seed, game_mode="coins"):
             viewer.draw(inner_env.env.render(), inner_env)
             clock.tick(50)
 
-            elapsed            = time.time() - start_time
-            coins, total_tiles = track_progress_check(inner_env)
+            elapsed                       = time.time() - start_time
+            tiles_visited, total_tiles    = track_progress_check(inner_env)
             last_tiles, no_progress_steps, penalty_time = _apply_off_track_penalty(
-                coins,
-                last_tiles,
-                no_progress_steps,
-                penalty_time,
+                tiles_visited, last_tiles, no_progress_steps, penalty_time,
             )
             elapsed += penalty_time
-            lap_done_now       = track_completed_check(inner_env)
+            lap_done_now = track_completed_check(inner_env)
 
-            print(f"\rAI | {map_name} | {elapsed:.1f}s  tiles: {coins}/{total_tiles}  lap: {lap_done_now}", end="", flush=True)
+            print(f"\rAI | {map_name} | {elapsed:.1f}s  tiles: {tiles_visited}/{total_tiles}  lap: {lap_done_now}", end="", flush=True)
 
             if lap_done_now:
                 lap_time = time.time() - start_time + penalty_time
-                print(f"\nAI completed the lap in {lap_time:.2f}s" if game_mode == "time" else f"\nLap complete. Score: {coins} coins")
+                print(f"\nAI completed the lap in {lap_time:.2f}s")
                 running = False
 
             elif done[0]:
                 final_message = [
-                    "Driving Finished", "Goal reached: No",
-                    f"Track progress: {coins}/{total_tiles} tiles" if game_mode == "time" else f"Coins collected: {coins}/{total_tiles}",
-                    "Complete the full lap to set a time!" if game_mode == "time" else f"{TIME_LIMIT_SECONDS}s rule: more coins wins",
+                    "Driving Finished", "Lap not completed.",
+                    f"Track progress: {tiles_visited}/{total_tiles} tiles",
+                    "Complete the full lap to set a time!",
                 ]
-                print(f"\nEpisode ended ({coins}/{total_tiles} tiles).")
+                print(f"\nEpisode ended ({tiles_visited}/{total_tiles} tiles).")
                 running = False
 
-            elif game_mode == "coins" and elapsed >= TIME_LIMIT_SECONDS:
-                timed_out     = True
-                final_message = [
-                    "Driving Out Of Time", "Goal reached: No",
-                    f"Coins collected: {coins}/{total_tiles}",
-                    f"{TIME_LIMIT_SECONDS}s rule: more coins wins",
-                ]
-                print(f"\nOut of time ({TIME_LIMIT_SECONDS}s).")
-                running = False
-
-            elif game_mode == "time" and elapsed >= 40:
-                timed_out     = True
+            elif elapsed >= 40:
                 final_message = [
                     "Time's Up!", "AI did not complete the lap in 40s.",
-                    f"Track progress: {coins}/{total_tiles} tiles",
+                    f"Track progress: {tiles_visited}/{total_tiles} tiles",
                 ]
                 print("\nAI ran out of time (40s).")
                 running = False
@@ -453,59 +421,13 @@ def run_ai(map_name, map_seed, game_mode="coins"):
     vec_env.close()
     pygame.quit()
 
-    board = get_board(map_name, game_mode)
-
-    if game_mode == "time":
-        if lap_time is not None:
-            board = add_to_leaderboard("AI", map_name, "time", lap_time=lap_time)
-        show_ai_result_time(lap_time, map_name, board)
-    else:
-        board = add_to_leaderboard("AI", map_name, "coins", coins=coins)
-        show_ai_result(coins, map_name, board)
+    board = get_board(map_name)
+    if lap_time is not None:
+        board = add_to_leaderboard("AI", map_name, lap_time)
+    show_ai_result_time(lap_time, map_name, board)
 
 
 # ─── RESULT SCREENS ───────────────────────────────────────────────────────────
-
-def show_ai_result(ai_coins, map_name, board):
-    root = tk.Tk()
-    root.title("AI Race Result")
-    root.geometry("520x460")
-    root.resizable(False, False)
-    root.configure(bg="#0D1117")
-
-    title_font = tkfont.Font(family="Helvetica", size=22, weight="bold")
-    sub_font   = tkfont.Font(family="Helvetica", size=11)
-    big_font   = tkfont.Font(family="Helvetica", size=14, weight="bold")
-
-    tk.Label(root, text="AI Race Result", font=title_font, bg="#0D1117", fg="#0F9E75").pack(pady=(24, 4))
-    tk.Label(root, text=f"{map_name}  —  Collect Coins", font=sub_font, bg="#0D1117", fg="#64748B").pack()
-    tk.Label(root, text=f"AI Coins: {ai_coins}", font=big_font, bg="#0D1117", fg="#FFFFFF").pack(pady=(12, 4))
-
-    humans = [e for e in board if e["name"] != "AI"]
-    if humans:
-        best = humans[0]
-        human_coins = leaderboard_score(best)
-        tk.Label(root, text=f"Human Best: {human_coins} coins  ({best['name']})", font=big_font, bg="#0D1117", fg="#FFFFFF").pack(pady=4)
-        if ai_coins > human_coins:
-            verdict, color = f"AI WINS by {ai_coins - human_coins} coins", "#0F9E75"
-        elif ai_coins == human_coins:
-            verdict, color = "Tie!", "#D97706"
-        else:
-            verdict, color = f"Human still wins by {human_coins - ai_coins} coins", "#D97706"
-        tk.Label(root, text=verdict, font=big_font, bg="#0D1117", fg=color).pack(pady=(12, 4))
-    else:
-        tk.Label(root, text="No human scores on this map yet.", font=sub_font, bg="#0D1117", fg="#64748B").pack(pady=8)
-
-    tk.Label(root, text=f"Leaderboard — {map_name} — Coins", font=sub_font, bg="#0D1117", fg="#D97706").pack(pady=(12, 4))
-    ranks = ["1st", "2nd", "3rd"]
-    for i, entry in enumerate(board[:5]):
-        rank  = ranks[i] if i < 3 else f"{i+1}th"
-        color = "#0F9E75" if entry["name"] == "AI" else "#FFFFFF"
-        tk.Label(root, text=f"{rank}  {entry['name']}  —  {leaderboard_score(entry)} coins", font=sub_font, bg="#0D1117", fg=color).pack(pady=1)
-
-    tk.Button(root, text="Close", font=sub_font, command=root.destroy, bg="#1E293B", fg="#FFFFFF", relief="flat", padx=16, pady=8).pack(pady=(12, 0))
-    root.mainloop()
-
 
 def show_ai_result_time(ai_lap_time, map_name, board):
     root = tk.Tk()
@@ -552,35 +474,6 @@ def show_ai_result_time(ai_lap_time, map_name, board):
     root.mainloop()
 
 
-def show_leaderboard_screen(name, coins, map_name, board):
-    root = tk.Tk()
-    root.title("Race Finished")
-    root.geometry("520x480")
-    root.resizable(False, False)
-    root.configure(bg="#0D1117")
-
-    title_font = tkfont.Font(family="Helvetica", size=22, weight="bold")
-    sub_font   = tkfont.Font(family="Helvetica", size=11)
-    btn_font   = tkfont.Font(family="Helvetica", size=12, weight="bold")
-    row_font   = tkfont.Font(family="Helvetica", size=12)
-
-    tk.Label(root, text="Race Finished",              font=title_font, bg="#0D1117", fg="#0F9E75").pack(pady=(24, 4))
-    tk.Label(root, text=f"{map_name}  —  Collect Coins", font=sub_font, bg="#0D1117", fg="#64748B").pack()
-    tk.Label(root, text=f"{name}  —  {coins} coins",  font=sub_font,   bg="#0D1117", fg="#FFFFFF").pack(pady=(8, 16))
-    tk.Label(root, text=f"Leaderboard — {map_name} — Coins", font=sub_font, bg="#0D1117", fg="#D97706").pack(pady=(0, 8))
-
-    ranks = ["1st", "2nd", "3rd"]
-    for i, entry in enumerate(board[:8]):
-        rank   = ranks[i] if i < 3 else f"{i+1}th"
-        is_you = entry["name"] == name and leaderboard_score(entry) == coins
-        color  = "#0F9E75" if is_you else "#FFFFFF"
-        suffix = "  <- you" if is_you else ""
-        tk.Label(root, text=f"{rank}  {entry['name']}  —  {leaderboard_score(entry)} coins{suffix}", font=row_font, bg="#0D1117", fg=color).pack(pady=1)
-
-    tk.Button(root, text="Close", font=btn_font, command=root.destroy, bg="#1E293B", fg="#FFFFFF", activebackground="#334155", relief="flat", padx=16, pady=8).pack(pady=(16, 0))
-    root.mainloop()
-
-
 def show_time_result_screen(name, lap_time, map_name, board):
     root = tk.Tk()
     root.title("Best Time Result")
@@ -593,9 +486,9 @@ def show_time_result_screen(name, lap_time, map_name, board):
     btn_font   = tkfont.Font(family="Helvetica", size=12, weight="bold")
     row_font   = tkfont.Font(family="Helvetica", size=12)
 
-    tk.Label(root, text="Lap Complete!",                  font=title_font, bg="#0D1117", fg="#0F9E75").pack(pady=(24, 4))
-    tk.Label(root, text=f"{map_name}  —  Best Time",      font=sub_font,   bg="#0D1117", fg="#64748B").pack()
-    tk.Label(root, text=f"{name}  —  {lap_time:.2f}s",    font=sub_font,   bg="#0D1117", fg="#FFFFFF").pack(pady=(8, 16))
+    tk.Label(root, text="Lap Complete!",               font=title_font, bg="#0D1117", fg="#0F9E75").pack(pady=(24, 4))
+    tk.Label(root, text=f"{map_name}  —  Best Time",   font=sub_font,   bg="#0D1117", fg="#64748B").pack()
+    tk.Label(root, text=f"{name}  —  {lap_time:.2f}s", font=sub_font,   bg="#0D1117", fg="#FFFFFF").pack(pady=(8, 16))
     tk.Label(root, text=f"Leaderboard — {map_name} — Best Time", font=sub_font, bg="#0D1117", fg="#D97706").pack(pady=(0, 8))
 
     ranks = ["1st", "2nd", "3rd"]
@@ -614,11 +507,11 @@ def show_time_result_screen(name, lap_time, map_name, board):
 
 def launch_gui():
     first_map_name = next(iter(MAP_OPTIONS))
-    result = {"name": None, "mode": None, "map_name": first_map_name, "map_seed": MAP_OPTIONS[first_map_name], "game_mode": "time"}
+    result = {"name": None, "mode": None, "map_name": first_map_name, "map_seed": MAP_OPTIONS[first_map_name]}
 
     root = tk.Tk()
     root.title("Apex AI — Launcher")
-    root.geometry("520x600")
+    root.geometry("520x520")
     root.resizable(False, False)
     root.configure(bg="#0D1117")
 
@@ -643,16 +536,7 @@ def launch_gui():
     map_menu.config(font=label_font, width=24, bg="#1E293B", fg="#FFFFFF",
                     activebackground="#334155", activeforeground="#FFFFFF", relief="flat", highlightthickness=0)
     map_menu["menu"].config(bg="#1E293B", fg="#FFFFFF", activebackground="#334155")
-    map_menu.pack(pady=(6, 16))
-
-    tk.Label(root, text="Game mode:", font=label_font, bg="#0D1117", fg="#FFFFFF").pack()
-    GAME_MODES    = {"Collect Coins": "coins", "Best Time": "time"}
-    game_mode_var = tk.StringVar(value="Best Time")
-    gm_menu       = tk.OptionMenu(root, game_mode_var, *GAME_MODES.keys())
-    gm_menu.config(font=label_font, width=24, bg="#1E293B", fg="#FFFFFF",
-                   activebackground="#334155", activeforeground="#FFFFFF", relief="flat", highlightthickness=0)
-    gm_menu["menu"].config(bg="#1E293B", fg="#FFFFFF", activebackground="#334155")
-    gm_menu.pack(pady=(6, 16))
+    map_menu.pack(pady=(6, 20))
 
     error_label = tk.Label(root, text="", font=sub_font, bg="#0D1117", fg="#DC2626")
     error_label.pack()
@@ -662,11 +546,10 @@ def launch_gui():
         if not name:
             error_label.config(text="Please enter your name before starting.")
             return
-        result["name"]      = name
-        result["mode"]      = "human"
-        result["map_name"]  = map_var.get()
-        result["map_seed"]  = MAP_OPTIONS[map_var.get()]
-        result["game_mode"] = GAME_MODES[game_mode_var.get()]
+        result["name"]     = name
+        result["mode"]     = "human"
+        result["map_name"] = map_var.get()
+        result["map_seed"] = MAP_OPTIONS[map_var.get()]
         root.destroy()
 
     tk.Button(root, text="Drive Manually", font=btn_font, command=start_human,
@@ -677,34 +560,27 @@ def launch_gui():
         if not os.path.exists(f"{SAVE_DIR}/{MODEL_NAME}.zip"):
             error_label.config(text="No trained model found. Run train.py first.")
             return
-        result["mode"]      = "ai"
-        result["map_name"]  = map_var.get()
-        result["map_seed"]  = MAP_OPTIONS[map_var.get()]
-        result["game_mode"] = GAME_MODES[game_mode_var.get()]
+        result["mode"]     = "ai"
+        result["map_name"] = map_var.get()
+        result["map_seed"] = MAP_OPTIONS[map_var.get()]
         root.destroy()
 
     tk.Button(root, text="Let AI Drive", font=btn_font, command=start_ai,
               bg="#1E293B", fg="#64748B", activebackground="#1E293B", activeforeground="#64748B",
               relief="flat", padx=20, pady=10, width=22).pack(pady=(0, 12))
 
-    # Show leaderboard preview for selected map+mode
+    # Show leaderboard preview for selected map
     def refresh_preview(*_):
         for w in preview_frame.winfo_children():
             w.destroy()
-        selected_map  = map_var.get()
-        selected_mode = GAME_MODES[game_mode_var.get()]
-        board = get_board(selected_map, selected_mode)
-        mode_label_str = "Coins" if selected_mode == "coins" else "Best Time"
-        tk.Label(preview_frame, text=f"{selected_map} — {mode_label_str}",
+        selected_map = map_var.get()
+        board = get_board(selected_map)
+        tk.Label(preview_frame, text=f"{selected_map} — Best Time",
                  font=label_font, bg="#0D1117", fg="#D97706").pack()
         if board:
             ranks = ["1st", "2nd", "3rd"]
             for i, entry in enumerate(board[:3]):
-                if selected_mode == "time":
-                    score_str = f"{entry.get('lap_time', 0):.2f}s"
-                else:
-                    score_str = f"{leaderboard_score(entry)} coins"
-                tk.Label(preview_frame, text=f"{ranks[i]}  {entry['name']}  —  {score_str}",
+                tk.Label(preview_frame, text=f"{ranks[i]}  {entry['name']}  —  {entry.get('lap_time', 0):.2f}s",
                          font=sub_font, bg="#0D1117", fg="#FFFFFF").pack()
         else:
             tk.Label(preview_frame, text="No scores yet.", font=sub_font, bg="#0D1117", fg="#64748B").pack()
@@ -712,7 +588,6 @@ def launch_gui():
     preview_frame = tk.Frame(root, bg="#0D1117")
     preview_frame.pack(pady=(0, 8))
     map_var.trace_add("write", refresh_preview)
-    game_mode_var.trace_add("write", refresh_preview)
     refresh_preview()
 
     root.mainloop()
@@ -721,7 +596,7 @@ def launch_gui():
 
 # ─── MAIN GAME (human) ────────────────────────────────────────────────────────
 
-def run_game(player_name, map_name, map_seed, game_mode="coins"):
+def run_game(player_name, map_name, map_seed):
     env = gym.make(
         "CarRacing-v3",
         render_mode="rgb_array",
@@ -731,26 +606,20 @@ def run_game(player_name, map_name, map_seed, game_mode="coins"):
     obs, info = env.reset(seed=map_seed)
 
     pygame.init()
-    mode_label = "Collect Coins" if game_mode == "coins" else "Best Time"
-    viewer = RaceViewer(f"Apex AI - Manual Drive | {map_name} | {mode_label}")
+    viewer = RaceViewer(f"Apex AI - Manual Drive | {map_name} | Best Time")
     clock  = pygame.time.Clock()
 
-    print(f"\nWelcome {player_name}. {map_name} | {mode_label}")
+    print(f"\nWelcome {player_name}. {map_name} | Best Time")
     print("Controls: W = gas | S = brake | A = left | D = right | Q = quit")
-    if game_mode == "coins":
-        print(f"Timer starts on first W press. Collect coins in {TIME_LIMIT_SECONDS}s!\n")
-    else:
-        print("Timer starts on first W press. Complete the full lap as fast as you can!\n")
+    print("Timer starts on first W press. Complete the full lap as fast as you can!\n")
 
-    start_time    = None
-    lap_done      = False
-    lap_time      = None
-    coins         = 0
-    last_tiles    = 0
+    start_time        = None
+    lap_done          = False
+    lap_time          = None
+    last_tiles        = 0
     no_progress_steps = 0
-    penalty_time  = 0.0
-    timed_out     = False
-    final_message = None
+    penalty_time      = 0.0
+    final_message     = None
 
     running = True
     while running:
@@ -775,47 +644,33 @@ def run_game(player_name, map_name, map_seed, game_mode="coins"):
         clock.tick(50)
 
         if start_time is not None and not lap_done:
-            elapsed        = time.time() - start_time
-            coins, total_t = track_progress_check(env)
+            elapsed          = time.time() - start_time
+            tiles, total_t   = track_progress_check(env)
             last_tiles, no_progress_steps, penalty_time = _apply_off_track_penalty(
-                coins,
-                last_tiles,
-                no_progress_steps,
-                penalty_time,
+                tiles, last_tiles, no_progress_steps, penalty_time,
             )
             elapsed += penalty_time
-            print(f"\r{elapsed:.1f}s  tiles: {coins}/{total_t}", end="", flush=True)
+            print(f"\r{elapsed:.1f}s  tiles: {tiles}/{total_t}", end="", flush=True)
 
             if track_completed_check(env) or (terminated and not info.get("TimeLimit.truncated", False)):
                 lap_time = time.time() - start_time + penalty_time
                 lap_done = True
-                print(f"\nLap complete! Time: {lap_time:.2f}s  Tiles: {coins}/{total_t}")
+                print(f"\nLap complete! Time: {lap_time:.2f}s  Tiles: {tiles}/{total_t}")
                 running = False
 
-            elif game_mode == "coins" and elapsed >= TIME_LIMIT_SECONDS:
-                timed_out     = True
-                final_message = [
-                    "Time's Up!", f"{TIME_LIMIT_SECONDS}s limit reached.",
-                    f"Coins collected: {coins}/{total_t}",
-                ]
-                print(f"\nOut of time ({TIME_LIMIT_SECONDS}s).")
-                running = False
-
-            elif game_mode == "time" and elapsed >= 40:
-                timed_out     = True
+            elif elapsed >= 40:
                 final_message = [
                     "Time's Up!", "You did not complete the lap in 40s.",
-                    f"Track progress: {coins}/{total_t} tiles",
+                    f"Track progress: {tiles}/{total_t} tiles",
                 ]
                 print("\nRan out of time (40s).")
                 running = False
 
             elif (terminated or truncated) and not lap_done:
                 visited, total_t = track_progress_check(env)
-                coins = visited
                 final_message = [
-                    "Driving Finished", "Goal reached: No",
-                    f"Coins: {visited}/{total_t}" if game_mode == "coins" else f"Progress: {visited}/{total_t} tiles",
+                    "Driving Finished", "Lap not completed.",
+                    f"Progress: {visited}/{total_t} tiles",
                 ]
                 print(f"\nEpisode ended ({visited}/{total_t} tiles).")
                 running = False
@@ -825,9 +680,7 @@ def run_game(player_name, map_name, map_seed, game_mode="coins"):
 
     env.close()
     pygame.quit()
-    if game_mode == "time":
-        return ("time", lap_time) if lap_done else (None, None)
-    return ("coins", coins) if start_time is not None else (None, None)
+    return lap_time if lap_done else None
 
 
 # ─── ENTRY POINT ──────────────────────────────────────────────────────────────
@@ -840,22 +693,18 @@ if __name__ == "__main__":
             print("No mode selected. Exiting.")
             break
 
-        map_name  = result["map_name"]
-        map_seed  = result["map_seed"]
-        game_mode = result.get("game_mode", "coins")
+        map_name = result["map_name"]
+        map_seed = result["map_seed"]
 
         if result["mode"] == "human":
             player_name = result["name"]
-            score_type, score_value = run_game(player_name, map_name, map_seed, game_mode)
+            lap_time = run_game(player_name, map_name, map_seed)
 
-            if score_type == "coins" and score_value is not None:
-                board = add_to_leaderboard(player_name, map_name, "coins", coins=score_value)
-                show_leaderboard_screen(player_name, score_value, map_name, board)
-            elif score_type == "time" and score_value is not None:
-                board = add_to_leaderboard(player_name, map_name, "time", lap_time=score_value)
-                show_time_result_screen(player_name, score_value, map_name, board)
+            if lap_time is not None:
+                board = add_to_leaderboard(player_name, map_name, lap_time)
+                show_time_result_screen(player_name, lap_time, map_name, board)
             else:
                 print("No score recorded — returning to menu.")
 
         elif result["mode"] == "ai":
-            run_ai(map_name, map_seed, game_mode)
+            run_ai(map_name, map_seed)
