@@ -17,7 +17,7 @@ from env_compat import make_car_racing_env
 # TRAINING SETTINGS
 # ════════════════════════════════════════════════════════════════════════════════
 
-TOTAL_TIMESTEPS = 2_000_000       # steps to train this run (accumulates on top of checkpoint)
+TOTAL_TIMESTEPS = 1_200_000       # steps to train this run (accumulates on top of checkpoint)
 SAVE_EVERY      = 25_000        # checkpoint interval
 MODEL_NAME      = "updated_ppo_car_racing"
 SAVE_DIR        = "./models"
@@ -37,22 +37,22 @@ REWARD_SHAPING          = True
 # many consecutive steps.  25 steps is tight enough to kill donuts quickly
 # while still allowing the car to navigate a sharp corner.
 TERMINATE_NO_PROGRESS   = True
-NO_PROGRESS_STEPS_LIMIT = 60        # was 25 — increased to allow slow navigation of sharp turns
-TERMINATION_PENALTY     = 50.0       # was 1.0 — must hurt more than circling rewards
+NO_PROGRESS_STEPS_LIMIT = 30        # was 25 — increased to allow slow navigation of sharp turns
+TERMINATION_PENALTY     = 400.0       # was 1.0 — must hurt more than circling rewards
 
 # ── Per-step penalties ────────────────────────────────────────────────────────
-NO_PROGRESS_PENALTY     = 0.2       # was 0.3 — slightly reduced to keep it moving while searching
-OFF_TRACK_PENALTY       = 1.0       # immediate penalty for being outside the track lines
+NO_PROGRESS_PENALTY     = 0.00       # was 0.3 — slightly reduced to keep it moving while searching
+OFF_TRACK_PENALTY       = 2.0       # immediate penalty for being outside the track lines
 TIME_PENALTY_PER_STEP   = 0.001     # small constant to discourage dawdling
 
 # ── Bonuses ───────────────────────────────────────────────────────────────────
-COMPLETION_BONUS        = 100.0      # was 5.0 — increased reward for winning
+COMPLETION_BONUS        = 500.0      # was 5.0 — increased reward for winning
 
 # ── Reward weights ────────────────────────────────────────────────────────────
 PROGRESS_REWARD_PER_TILE    = 1.0   # per new track tile visited
-SPEED_REWARD_WEIGHT         = 0.003 # was 0.005 — slightly reduced so it prioritizes path over raw speed
-MAX_SPEED_REWARD            = 15.0  # cap speed contribution so straights aren't over-rewarded
-STEERING_SMOOTHNESS_WEIGHT  = 0.15  # was 0.15 — reduced so it's not afraid to turn the wheel sharp
+SPEED_REWARD_WEIGHT         = 0.000 # was 0.005 — slightly reduced so it prioritizes path over raw speed
+MAX_SPEED_REWARD            = 0.0  # cap speed contribution so straights aren't over-rewarded
+STEERING_SMOOTHNESS_WEIGHT  = 1.0  # was 0.15 — reduced so it's not afraid to turn the wheel sharp
 
 REWARD_CLIP_RANGE       = None      # set e.g. (-1.0, 1.0) to clip; None = off
 
@@ -357,7 +357,9 @@ def main():
     env = build_env()
 
     # Auto-resume from latest checkpoint if one exists
-    checkpoint_files = glob.glob(f"{SAVE_DIR}/{MODEL_NAME}_*_steps.zip")
+    #checkpoint_files = glob.glob(f"{SAVE_DIR}/{MODEL_NAME}_*_steps.zip")
+    # Select specific checkpoint to resume from (e.g., n1_800k.zip) or use the latest available
+    checkpoint_files = glob.glob(f"{SAVE_DIR}/n1_800k.zip")
     model = None
     if checkpoint_files:
         latest = max(checkpoint_files, key=os.path.getctime)
@@ -407,7 +409,7 @@ def main():
             callback=callbacks,
             progress_bar=False,
             reset_num_timesteps=False,
-            tb_log_name="PPO",  # This ensures SB3 uses a unique suffix (PPO_1, PPO_2, etc.) for each session
+            tb_log_name="PPO_2",  # This ensures SB3 uses a unique suffix (PPO_1, PPO_2, etc.) for each session
         )
     except KeyboardInterrupt:
         print("\nTraining stopped early.")

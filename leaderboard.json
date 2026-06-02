@@ -24,12 +24,6 @@
     "lap_time": 33.944
   },
   {
-    "name": "AI",
-    "map": "Map 1",
-    "score_type": "time",
-    "lap_time": 21.569
-  },
-  {
     "name": "Aldorino",
     "map": "Map 1",
     "score_type": "coins",
@@ -184,5 +178,11 @@
     "map": "Map 2",
     "score_type": "time",
     "lap_time": 16.538
+  },
+  {
+    "name": "AI",
+    "map": "Map 1",
+    "score_type": "time",
+    "lap_time": 21.569
   }
 ]
